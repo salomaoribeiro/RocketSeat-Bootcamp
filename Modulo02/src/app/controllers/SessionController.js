@@ -22,11 +22,11 @@ class SessionController {
       },
     });
 
-    if (!user) return res.status(401).json({ error: 'user not valid' });
+    if (!user) return res.status(401).json({ error: 'Invalid user' });
 
     if (!(await user.checkPassword(password)))
       return res.status(401).json({
-        error: 'Password does not match',
+        error: 'User or password does not match',
       });
 
     const { id, name } = user;
