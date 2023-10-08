@@ -1,9 +1,11 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore } from 'date-fns';
-import File from '../models/File';
+import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 
-import Appointment from '../models/Appointment';
+import File from '../models/File';
 import User from '../models/User';
+import Appointment from '../models/Appointment';
+import Notification from '../schemas/Notification';
 
 class AppointmentController {
   async index(req, res) {
@@ -36,6 +38,7 @@ class AppointmentController {
 
     res.json({ appointments });
   }
+
   async store(req, res) {
     const scheme = Yup.object().shape({
       provider_id: Yup.number().required(),
@@ -61,7 +64,7 @@ class AppointmentController {
     if (isBefore(hourStart, new Date()))
       return res.status(400).json({ error: 'Past dates are not permitted' });
 
-    const checkAvailability = Appointment.findOne({
+    const checkAvailability = await Appointment.findOne({
       where: {
         provider_id,
         canceled_at: null,
@@ -70,12 +73,25 @@ class AppointmentController {
     });
 
     if (checkAvailability)
-      res.status(400).json({ error: 'Appointment date is not available' });
+      return res.status(400).json({ error: 'Appointment date is not available' });
 
     const appointment = await Appointment.create({
       user_id: req.userId,
       provider_id,
       data,
+    });
+
+    const user = await User.findByPk(req.userId);
+    const formatedDate = format(
+      hourStart,
+      "'dia' dd 'de' MMMM', às' hh:mm'h'",
+      { locale: pt }
+    );
+
+    // Notify appointment provider
+    await await Notification.create({
+      content: `Novo agendamento de ${user.nome} para ${formatedDate}`,
+      user: provider_id,
     });
 
     return res.json({ appointment });

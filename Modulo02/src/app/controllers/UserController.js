@@ -3,6 +3,11 @@ import * as Yup from 'yup';
 import User from '../models/User';
 
 class UserController {
+  async index(_, res) {
+    const allUsers = await User.findAll();
+    res.json({ allUsers });
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
