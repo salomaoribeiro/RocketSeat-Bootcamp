@@ -1,6 +1,6 @@
 export default {
-  host: '',
-  port: '',
+  host: 'localhost',
+  port: '25',
   secure: false,
   auth: {
     user: '',
