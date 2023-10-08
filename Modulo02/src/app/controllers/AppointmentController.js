@@ -18,7 +18,7 @@ class AppointmentController {
         user_id: req.userId,
         canceled_at: null,
       },
-      attributes: ['id', 'data'],
+      attributes: ['id', 'data', 'past', 'cancelable'],
       order: ['data'],
       limit: 20,
       offset: (page - 1) * 20,
